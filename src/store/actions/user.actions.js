@@ -1,7 +1,19 @@
-import { userConstants } from "../_constants";
-import { userService } from "../_services";
-import { alertActions } from "./";
-import { history } from "../_helpers";
+// Redux action creators for actions related to users. Public action creators are exposed via the userActions object at the top of the file and function implementations are located below
+
+// Most of the actions for users are async actions that are made up of multiple sub actions, this is because they have to make an http request and wait for the response before completing. Async actions typically dispatch a request action before performing an async task (e.g. an http request), and then dispatch a success or error action based on the result of the async task.
+
+// For example the login() action creator performs the following steps:
+
+// dispatches a LOGIN_REQUEST action with dispatch(request({ username }));
+// calls the async task userService.login(username, password)
+// dispatches a LOGIN_SUCCESS with dispatch(success(user)); if login was successful, or dispatches a LOGIN_FAILURE action with dispatch(failure(error)); if login failed
+
+// To keep the code tidy I've put sub action creators into nested functions within each async action creator function. For example the login() function contains 3 nested action creator functions for request(), success() and failure() that return the actions LOGIN_REQUEST, LOGIN_SUCCESS and LOGIN_FAILURE respectively. Putting the sub action creators into nested functions also allows me to give them standard names like request, success and failure without clashing with other function names because they only exist within the scope of the parent function
+
+import { userConstants } from "../constants/user.constants";
+import { userService } from "../services/user.service";
+import { alertActions } from "./alert.actions";
+import { history } from "../../utils/history";
 
 export const userActions = {
   login,
@@ -19,8 +31,11 @@ function login(username, password, from) {
       (user) => {
         dispatch(success(user));
         history.push(from);
+        window.location.reload();
       },
       (error) => {
+        error = error.response.data.message;
+        console.log("WHAT is error", error);
         dispatch(failure(error.toString()));
         dispatch(alertActions.error(error.toString()));
       }
@@ -51,6 +66,8 @@ function register(user) {
       (user) => {
         dispatch(success());
         history.push("/login");
+        window.location.reload();
+
         dispatch(alertActions.success("Registration successful"));
       },
       (error) => {

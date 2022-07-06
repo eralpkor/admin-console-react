@@ -1,6 +1,6 @@
 // Contains Redux action creators for actions related to alerts / toaster notifications in the application. For example to display a success alert message with the text 'Registration Successful' you can call dispatch(alertActions.success('Registration successful'));
 
-import { alertConstants } from "../_constants";
+import { alertConstants } from "../constants/alert.constants";
 
 export const alertActions = {
   success,
